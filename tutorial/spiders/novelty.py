@@ -18,6 +18,7 @@ class NoveltySpider(scrapy.Spider):
             item['time'] = article.xpath('p[@class="meta"]/time/text()').extract_first()
             item['pc'] = article.xpath('p[@class="meta"]/a[@class="pc"]/text()').extract_first()
             item['post_like'] = article.xpath('p[@class="meta"]/a[@class="post-like"]/span/text()').extract_first()
+            item['note'] = article.xpath('p[@class="note"]/text()').extract_first()
             item['thumb'] = article.xpath('a/img/@src').extract_first()
             yield(item)
             print(item)
