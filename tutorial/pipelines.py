@@ -34,7 +34,7 @@ class NoveltySpiderPipeline(object):
 
     def process_item(self, item, spider):
         print(int(create_id(),16))
-        self.cursor.execute(self.sql, (int(create_id(),16),item['cat'], item['detail'], item['title'], item['time'], item['pc'], item['note'],item['post_like'],item['thumb']))
+        self.cursor.execute(self.sql, (item['cat'], item['detail'], item['title'], item['time'], item['pc'], item['note'],item['post_like'],item['thumb']))
         self.conn.commit()
         return item
 
@@ -42,7 +42,7 @@ class NoveltySpiderPipeline(object):
     def sql(self):
         if not self._sql:
             self._sql = """
-                insert into T_article_list(F_id,F_cat,F_detail,F_title,F_time,F_pc,F_note,F_post_like,F_thumb) values(%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                insert into T_article_list(F_cat,F_detail,F_title,F_time,F_pc,F_note,F_post_like,F_thumb) values(%s,%s,%s,%s,%s,%s,%s,%s)
                 """
             return self._sql
         return self._sql
