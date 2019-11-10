@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
+from .. import db
 from tutorial.items import NoveltyItem
 
 class NoveltySpider(scrapy.Spider):
@@ -20,6 +21,9 @@ class NoveltySpider(scrapy.Spider):
             item['post_like'] = article.xpath('p[@class="meta"]/a[@class="post-like"]/span/text()').extract_first()
             item['note'] = article.xpath('p[@class="note"]/text()').extract_first()
             item['thumb'] = article.xpath('a/img/@src').extract_first()
+            #如果该文章已存在，就跳出循环
+            if db.exist(item['detail']) == True :
+                return
             yield(item)
             print(item)
             print("--------\n")
@@ -30,3 +34,4 @@ class NoveltySpider(scrapy.Spider):
             next_page = response.urljoin(next_page)
             yield scrapy.Request(next_page, callback=self.parse, dont_filter=True )
         pass
+
