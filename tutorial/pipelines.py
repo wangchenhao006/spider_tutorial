@@ -8,6 +8,7 @@ import pymysql
 import time,hashlib
 from twisted.enterprise import adbapi
 from pymysql import cursors
+from . import db
 
 class TutorialPipeline(object):
     def process_item(self, item, spider):
@@ -18,31 +19,8 @@ def create_id():
     return m.hexdigest()
 
 class NoveltySpiderPipeline(object):
-
-    def __init__(self):
-        dbparams = {
-            'host': '139.219.8.80',
-            'port': 4321,
-            'user': 'test',
-            'password': 'test',
-            'database': 'novelty',
-            'charset': 'utf8'
-        }
-        self.conn = pymysql.connect(**dbparams)
-        self.cursor = self.conn.cursor()
-        self._sql = None
-
     def process_item(self, item, spider):
         print(int(create_id(),16))
-        self.cursor.execute(self.sql, (item['cat'], item['detail'], item['title'], item['time'], item['pc'], item['note'],item['post_like'],item['thumb']))
-        self.conn.commit()
-        return item
+        db_manager = db.DatabaseManager()
+        return db_manager.insert(item)
 
-    @property
-    def sql(self):
-        if not self._sql:
-            self._sql = """
-                insert into T_article_list(F_cat,F_detail,F_title,F_time,F_pc,F_note,F_post_like,F_thumb) values(%s,%s,%s,%s,%s,%s,%s,%s)
-                """
-            return self._sql
-        return self._sql

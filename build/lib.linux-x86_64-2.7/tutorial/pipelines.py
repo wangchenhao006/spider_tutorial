@@ -1,12 +1,25 @@
+# -*- coding: utf-8 -*-
+
+# Define your item pipelines here
+#
+# Don't forget to add your pipeline to the ITEM_PIPELINES setting
+# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 import pymysql
 import time,hashlib
 from twisted.enterprise import adbapi
 from pymysql import cursors
 
-class DatabaseManager(object):
+class TutorialPipeline(object):
+    def process_item(self, item, spider):
+        return item
+
+def create_id():
+    m = hashlib.md5(str(time.clock()).encode('utf-8'))
+    return m.hexdigest()
+
+class NoveltySpiderPipeline(object):
 
     def __init__(self):
-        # self.parent = parent 
         dbparams = {
             'host': '139.219.8.80',
             'port': 4321,
@@ -19,29 +32,17 @@ class DatabaseManager(object):
         self.cursor = self.conn.cursor()
         self._sql = None
 
-    # @property
-    def insert(self,item):
-        self.cursor.execute(self.get_insert(), (item['cat'], item['detail'], item['title'], item['time'], item['pc'], item['note'],item['post_like'],item['thumb']))
+    def process_item(self, item, spider):
+        print(int(create_id(),16))
+        self.cursor.execute(self.sql, (item['cat'], item['detail'], item['title'], item['time'], item['pc'], item['note'],item['post_like'],item['thumb']))
         self.conn.commit()
         return item
 
-
-    def get_insert(self):
+    @property
+    def sql(self):
         if not self._sql:
             self._sql = """
                 insert into T_article_list(F_cat,F_detail,F_title,F_time,F_pc,F_note,F_post_like,F_thumb) values(%s,%s,%s,%s,%s,%s,%s,%s)
                 """
             return self._sql
         return self._sql
-
-    # @property
-    def exist(self, detail, time):    
-        sql = """
-                select F_detail from T_article_list where F_detail = %s and F_time <= %s
-                """
-        self.cursor.execute(sql, (detail, time))
-        result = self.cursor.fetchone()
-        # 不在数据库中, 则插入
-        if result != None: 
-            return True;
-        return False;  
